@@ -1,0 +1,15 @@
+{
+    "name": "proyecto-curso-backend",
+    "version": "1.0.0",
+    "description": "Proyecto backend para curso",
+    "main": "app.js",
+    "scripts": {
+      "start": "node app.js"
+    },
+    "dependencies": {
+      "express": "^4.17.1",
+      "express-handlebars": "^5.3.3",
+      "mongoose": "^5.13.3"
+    }
+  }
+  

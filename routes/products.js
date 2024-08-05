@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const Product = require('../models/product');
+const Product = require('../models/Product');
 
-
+// Obtener todos los productos con paginación y filtros
 router.get('/', async (req, res) => {
     const { page = 1, limit = 10, name, price } = req.query;
     const filters = {};
@@ -26,19 +26,26 @@ router.get('/', async (req, res) => {
     }
 });
 
-
-router.get('/:id', getProduct, (req, res) => {
-    res.json(res.product);
+// Obtener un producto por ID
+router.get('/:pid', async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.pid);
+        if (product == null) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        res.json(product);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
-
+// Crear un nuevo producto
 router.post('/', async (req, res) => {
-    const { name, description, price, status, code, stock, category, thumbnails } = req.body;
+    const { name, description, price, code, stock, category, thumbnails } = req.body;
     const product = new Product({
         name,
         description,
         price,
-        status,
         code,
         stock,
         category,
@@ -53,50 +60,36 @@ router.post('/', async (req, res) => {
     }
 });
 
-
-router.put('/:id', getProduct, async (req, res) => {
-    const { name, description, price, status, code, stock, category, thumbnails } = req.body;
-    if (name != null) res.product.name = name;
-    if (description != null) res.product.description = description;
-    if (price != null) res.product.price = price;
-    if (status != null) res.product.status = status;
-    if (code != null) res.product.code = code;
-    if (stock != null) res.product.stock = stock;
-    if (category != null) res.product.category = category;
-    if (thumbnails != null) res.product.thumbnails = thumbnails;
-
+// Actualizar un producto
+router.put('/:id', async (req, res) => {
     try {
-        const updatedProduct = await res.product.save();
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        Object.assign(product, req.body);
+
+        const updatedProduct = await product.save();
         res.json(updatedProduct);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
 });
 
-
-router.delete('/:id', getProduct, async (req, res) => {
+// Eliminar un producto
+router.delete('/:id', async (req, res) => {
     try {
-        await res.product.remove();
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        await product.remove();
         res.json({ message: 'Producto eliminado' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
-
-
-async function getProduct(req, res, next) {
-    let product;
-    try {
-        product = await Product.findById(req.params.id);
-        if (product == null) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
-        }
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
-    }
-
-    res.product = product;
-    next();
-}
 
 module.exports = router;

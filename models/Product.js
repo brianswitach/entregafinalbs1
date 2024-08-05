@@ -4,11 +4,11 @@ const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
-    status: { type: String, required: true },
+    status: { type: Boolean, default: true },
     code: { type: String, required: true, unique: true },
     stock: { type: Number, required: true },
     category: { type: String, required: true },
-    thumbnails: [String]
+    thumbnails: { type: [String], default: [] }
 });
 
 module.exports = mongoose.model('Product', productSchema);
